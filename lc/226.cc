@@ -8,14 +8,14 @@
  * };
  */
 class Solution {
-public:
-    TreeNode* invertTree(TreeNode* root) {
-        if(!root) return NULL;
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (!root) return NULL;
 
-        TreeNode* result(new TreeNode(root->val));
-        result->left = invertTree(root->right);
-        result->right = invertTree(root->left);
+    TreeNode* result(new TreeNode(root->val));
+    result->left = invertTree(root->right);
+    result->right = invertTree(root->left);
 
-        return result;
-    }
+    return result;
+  }
 };

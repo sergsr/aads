@@ -1,5 +1,4 @@
 class Solution {
-public:
-    bool canWinNim(int n) {
-    }
+ public:
+  bool canWinNim(int n) {}
 };

@@ -53,8 +53,8 @@ class Solution {
         }
 
         leftover = leftover->next;
-        }
       }
+    }
 
     return resultHead;
   }

@@ -1,10 +1,8 @@
 class Solution {
  public:
   string longestCommonPrefix(const vector<string> &strs) {
-    if (strs.empty())
-      return "";
-    if (strs.size() == 1)
-      return strs[0];
+    if (strs.empty()) return "";
+    if (strs.size() == 1) return strs[0];
 
     int lastIndex = strs[0].size();
     for (const string &s : strs) {
