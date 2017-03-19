@@ -28,7 +28,7 @@ class Solution {
         }
       }
     }
-      return rowOrder(m);
+    return rowOrder(m);
   }
 
  private:

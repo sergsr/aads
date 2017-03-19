@@ -1,8 +1,8 @@
 class Solution {
  public:
-  static constexpr size_t UNIQUE_CHAR_COUNT = 1 << 8*sizeof(char);
+  static constexpr size_t UNIQUE_CHAR_COUNT = 1 << 8 * sizeof(char);
 
-    int lengthOfLongestSubstring(string s) {
+  int lengthOfLongestSubstring(string s) {
     int length = s.length();
 
     if (length < 2) return length;
