@@ -1,6 +1,6 @@
 extern crate euler;
 
-use euler::inputs;
+use euler::raw_inputs;
 use euler::solutions;
 
 fn main() {
