@@ -1,7 +1,5 @@
 extern crate euler;
 
-#[macro_use] extern crate indoc;
-
 use euler::inputs;
 use euler::solutions;
 
