@@ -13,5 +13,3 @@ pub fn grid_from_str(grid: &str) -> Vec<Vec<u32>> {
       .collect())
     .collect();
 }
-
-// TODO: io_wrapper: closures str -> str for raw input -> answer
