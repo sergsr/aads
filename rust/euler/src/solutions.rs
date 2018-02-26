@@ -1,4 +1,5 @@
 use std;
+use num::integer;
 
 pub fn largest_product_in_a_series(x: usize, digits: Vec<u64>) -> Option<u64> {
   (&digits[..])
@@ -51,6 +52,10 @@ pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> u32 {
   result
 }
 
+pub fn lattice_paths(size: u64) -> u64 {
+  integer::binomial(2*size, size)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -62,5 +67,11 @@ mod tests {
     assert_eq!(
       largest_product_in_a_series(4, io::digits_from_str(raw_inputs::INPUT_8)),
       Some(5832));
+  }
+
+  #[test]
+  fn test_lattice_paths() {
+    assert_eq!(1, lattice_paths(0));
+    assert_eq!(6, lattice_paths(2));
   }
 }

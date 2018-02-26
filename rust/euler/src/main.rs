@@ -11,4 +11,5 @@ fn main() {
   println!("Solution to 11: {}",
     solutions::largest_product_in_a_grid(
       io::grid_from_str(raw_inputs::INPUT_11)));
+  println!("Solution to 15: {}", solutions::lattice_paths(20));
 }
