@@ -1,4 +1,3 @@
-use std;
 use num::integer;
 
 pub fn largest_product_in_a_series(x: usize, digits: Vec<u64>) -> Option<u64> {
@@ -8,48 +7,23 @@ pub fn largest_product_in_a_series(x: usize, digits: Vec<u64>) -> Option<u64> {
     .max()
 }
 
-pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> u32 {
-  /* the following would be great once i figure out type issues
-   * and something elegant for diagonals
-  let horizontals = grid.iter()
-    .map(|row| row.windows(4))
-  let verticals = (&grid[..])
-    .windows(4)
-    .map(|rows| rows.iter()
-      .map(|row| row.iter()));
-  horizontals//.chain(verticals)
-    .product::<u32>()
-    .max::<u32>()
+fn contains_end(grid: &Vec<Vec<u32>>, r: i32, c: i32, dr: i32, dc: i32) -> bool {
+  0 <= r + 3*dr && r + 3*dr < grid.len() as i32 && 0 <= c + 3*dc && c + 3*dc < grid[0].len() as i32
+}
 
-  and return an Option<u32>
-  */
-  let mut result = 0;
-  let m = grid.len();
-  let n = grid[0].len();
-  for r in 0..m {
-    for c in 0..n {
-      let bottom_margin = r < m - 3;
-      let right_margin = c < n - 3;
-      let left_margin = 3 < c;
-      if right_margin {
-        result = std::cmp::max(result,
-          grid[r][c] * grid[r][c + 1] * grid[r][c + 2] * grid[r][c + 3]);
-      }
-      if bottom_margin {
-        result = std::cmp::max(result,
-          grid[r][c] * grid[r + 1][c] * grid[r + 2][c] * grid[r + 3][c]);
-      }
-      if right_margin && bottom_margin {
-        result = std::cmp::max(result,
-          grid[r][c] * grid[r + 1][c + 1] * grid[r + 2][c + 2] * grid[r + 3][c + 3]);
-      }
-      if left_margin && bottom_margin {
-        result = std::cmp::max(result,
-          grid[r][c] * grid[r + 1][c - 1] * grid[r + 2][c - 2] * grid[r + 3][c - 3]);
-      }
-    }
+fn line_product(grid: &Vec<Vec<u32>>, r: i32, c: i32, dr: i32, dc: i32) -> u32 {
+  (0..4).map(|d| grid[(r + d*dr) as usize][(c + d*dc) as usize]).product()
+}
+
+pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> Option<u32> {
+  if grid.is_empty() || grid.len() < 4 && grid[0].len() < 4 {
+    return None;
   }
-  result
+  let directions = [(1, 0), (0, 1), (1, 1), (-1, 1)];
+  iproduct!(0..(grid.len() as i32), 0..(grid[0].len() as i32), directions.iter())
+    .filter(|&(r, c, &(dr, dc))| contains_end(&grid, r, c, dr, dc))
+    .map(|(r, c, &(dr, dc))| line_product(&grid, r, c, dr, dc))
+    .max()
 }
 
 pub fn lattice_paths(size: u64) -> u64 {
