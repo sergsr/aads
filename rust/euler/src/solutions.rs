@@ -22,7 +22,7 @@ pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> Option<u32> {
       0 <= col + 3*col_step && col + 3*col_step < right)
     .map(|(row, col, &(row_step, col_step))|
       (0..4)
-        .map(|size| grid[(row + size*row_step) as usize][(col + size*col_step) as usize])
+        .map(|steps| grid[(row + steps*row_step) as usize][(col + steps*col_step) as usize])
         .product())
     .max()
 }
