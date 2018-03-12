@@ -8,18 +8,21 @@ pub fn largest_product_in_a_series(x: usize, digits: Vec<u64>) -> Option<u64> {
 }
 
 pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> Option<u32> {
-  if grid.is_empty() || grid.len() < 4 && grid[0].len() < 4 {
+  let line_length = 4;
+
+  if grid.is_empty() || grid.len() < line_length && grid[0].len() < line_length {
     return None;
   }
 
+  let line_length = line_length as isize;
   let bottom = grid.len() as isize;
   let right = grid[0].len() as isize;
   let directions = [(1, 0), (0, 1), (1, 1), (-1, 1)];
 
   iproduct!((0..bottom), (0..right), directions.iter())
     .filter(|&(row, col, &(row_step, col_step))|
-      0 <= row + 3*row_step && row + 3*row_step < bottom &&
-      0 <= col + 3*col_step && col + 3*col_step < right)
+      0 <= row + (line_length - 1)*row_step && row + (line_length - 1)*row_step < bottom &&
+      0 <= col + (line_length - 1)*col_step && col + (line_length - 1)*col_step < right)
     .map(|(row, col, &(row_step, col_step))|
       (0..4)
         .map(|steps| grid[(row + steps*row_step) as usize][(col + steps*col_step) as usize])
