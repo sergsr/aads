@@ -7,22 +7,23 @@ pub fn largest_product_in_a_series(x: usize, digits: Vec<u64>) -> Option<u64> {
     .max()
 }
 
-fn contains_end(grid: &Vec<Vec<u32>>, r: i32, c: i32, dr: i32, dc: i32) -> bool {
-  0 <= r + 3*dr && r + 3*dr < grid.len() as i32 && 0 <= c + 3*dc && c + 3*dc < grid[0].len() as i32
-}
-
-fn line_product(grid: &Vec<Vec<u32>>, r: i32, c: i32, dr: i32, dc: i32) -> u32 {
-  (0..4).map(|d| grid[(r + d*dr) as usize][(c + d*dc) as usize]).product()
-}
-
 pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> Option<u32> {
   if grid.is_empty() || grid.len() < 4 && grid[0].len() < 4 {
     return None;
   }
+
+  let bottom = grid.len() as isize;
+  let right = grid[0].len() as isize;
   let directions = [(1, 0), (0, 1), (1, 1), (-1, 1)];
-  iproduct!(0..(grid.len() as i32), 0..(grid[0].len() as i32), directions.iter())
-    .filter(|&(r, c, &(dr, dc))| contains_end(&grid, r, c, dr, dc))
-    .map(|(r, c, &(dr, dc))| line_product(&grid, r, c, dr, dc))
+
+  iproduct!((0..bottom), (0..right), directions.iter())
+    .filter(|&(row, col, &(row_step, col_step))|
+      0 <= row + 3*row_step && row + 3*row_step < bottom &&
+      0 <= col + 3*col_step && col + 3*col_step < right)
+    .map(|(row, col, &(row_step, col_step))|
+      (0..4)
+        .map(|size| grid[(row + size*row_step) as usize][(col + size*col_step) as usize])
+        .product())
     .max()
 }
 
