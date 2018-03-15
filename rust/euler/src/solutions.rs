@@ -14,19 +14,19 @@ pub fn largest_product_in_a_grid(grid: Vec<Vec<u32>>) -> Option<u32> {
         return None;
     }
 
-    let line_length = line_length as isize;
+    let step_count = (line_length as isize) - 1;
     let bottom = grid.len() as isize;
     let right = grid[0].len() as isize;
     let directions = [(1, 0), (0, 1), (1, 1), (-1, 1)];
 
     iproduct!((0..bottom), (0..right), directions.iter())
         .filter(|&(row, col, &(row_step, col_step))| {
-            0 <= row + (line_length - 1) * row_step && row + (line_length - 1) * row_step < bottom
-                && 0 <= col + (line_length - 1) * col_step
-                && col + (line_length - 1) * col_step < right
+            0 <= row + step_count * row_step && row + step_count * row_step < bottom
+                && 0 <= col + step_count * col_step
+                && col + step_count * col_step < right
         })
         .map(|(row, col, &(row_step, col_step))| {
-            (0..4)
+            (0..step_count + 1)
                 .map(|steps| {
                     grid[(row + steps * row_step) as usize][(col + steps * col_step) as usize]
                 })
