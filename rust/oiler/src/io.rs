@@ -8,6 +8,7 @@ pub fn digits_from_str(digits: &str) -> Vec<u64> {
 
 pub fn grid_from_str(grid: &str) -> Vec<Vec<u32>> {
     return grid.split('\n')
+        .filter(|line| !line.is_empty())
         .map(|line| line.split(' '))
         .map(|line| line.map(|word| word.parse::<u32>().unwrap()).collect())
         .collect();

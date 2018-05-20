@@ -4,6 +4,5 @@ version = "0.1.0"
 authors = ["Sergei Radutnuy <sergeiradutnuy01@gmail.com>"]
 
 [dependencies]
-indoc = "0.2"
 itertools = "0.7.3"
 num   = "0.1"

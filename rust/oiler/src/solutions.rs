@@ -42,13 +42,13 @@ pub fn lattice_paths(size: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::raw_inputs;
     use super::super::io;
 
     #[test]
     fn test_largest_product_in_a_series() {
+        let input = include_str!("inputs/008.txt");
         assert_eq!(
-            largest_product_in_a_series(4, io::digits_from_str(raw_inputs::INPUT_8)),
+            largest_product_in_a_series(4, io::digits_from_str(input)),
             Some(5832)
         );
     }
