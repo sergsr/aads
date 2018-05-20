@@ -1,8 +1,8 @@
-extern crate euler;
+extern crate oiler;
 
-use euler::io;
-use euler::raw_inputs;
-use euler::solutions;
+use oiler::io;
+use oiler::raw_inputs;
+use oiler::solutions;
 
 fn main() {
     println!(
