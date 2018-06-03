@@ -1,4 +1,5 @@
 use num::integer;
+use num::Integer;
 use rayon::prelude::*;
 
 pub fn largest_product_in_a_series(x: usize, digits: &Vec<u64>) -> Option<u64> {
@@ -55,6 +56,28 @@ pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
         .max()
 }
 
+fn collatz_length(seed: u64) -> u64 {
+    let mut curr = seed;
+    let mut count = 0;
+    while curr > 1 {
+        if curr.is_even() {
+            curr = curr / 2;
+        } else {
+            curr = 3 * curr + 1;
+        }
+        count = count + 1;
+    }
+    count
+}
+
+pub fn longest_collatz_sequence(bound: u64) -> Option<usize> {
+    (1..bound)
+        .map(|x| collatz_length(x))
+        .enumerate()
+        .max_by_key(|&x| x.1)
+        .map(|x| x.0 + 1)
+}
+
 pub fn lattice_paths(size: u64) -> u64 {
     integer::binomial(2 * size, size)
 }
@@ -79,7 +102,13 @@ mod tests {
     }
 
     #[test]
-    fn test_largest_product_in_a_grid_anti_diag() {
+    fn test_largest_product_in_a_grid() {
+        let input = Vec::new();
+        assert_eq!(largest_product_in_a_grid(&input), None);
+
+        let input = vec![Vec::new()];
+        assert_eq!(largest_product_in_a_grid(&input), None);
+
         let input = io::grid_from_str(
             "
             0 0 0 1
@@ -92,15 +121,10 @@ mod tests {
     }
 
     #[test]
-    fn test_largest_product_in_a_grid_empty_rows() {
-        let input = Vec::new();
-        assert_eq!(largest_product_in_a_grid(&input), None);
-    }
-
-    #[test]
-    fn test_largest_product_in_a_grid_empty_cols() {
-        let input = vec![Vec::new()];
-        assert_eq!(largest_product_in_a_grid(&input), None);
+    fn test_longest_collatz_sequence() {
+        assert_eq!(longest_collatz_sequence(0), None);
+        assert_eq!(longest_collatz_sequence(1), None);
+        assert_eq!(longest_collatz_sequence(2), Some(1));
     }
 
     #[test]
