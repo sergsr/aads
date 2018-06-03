@@ -12,6 +12,18 @@ fn line_product(old: Option<u32>, step: &Fn(usize) -> u32) -> Option<u32> {
     old.max(Some((0..4).map(step).product()))
 }
 
+pub fn special_pythagorean_triplet(sum: u32) -> Option<u32> {
+    // WLOG assume a = min(a, b). (sum - 2a)^2 > c^2 > a^2 => sum > 3a
+    (1..sum / 3 + 1)
+        .filter_map(|a| {
+            (a..sum - a)
+                .map(|b| (b, sum - a - b))
+                .find(|(b, c)| c * c == a * a + b * b)
+                .map(|(b, c)| a * b * c)
+        })
+        .nth(0)
+}
+
 pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
     if grid.is_empty() {
         return None;
@@ -59,6 +71,11 @@ mod tests {
             largest_product_in_a_series(4, &io::digits_from_str(input)),
             Some(5832)
         );
+    }
+
+    #[test]
+    fn test_special_pythagorean_triplet() {
+        assert_eq!(special_pythagorean_triplet(3 + 4 + 5), Some(3 * 4 * 5));
     }
 
     #[test]
