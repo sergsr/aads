@@ -9,10 +9,6 @@ pub fn largest_product_in_a_series(x: usize, digits: &Vec<u64>) -> Option<u64> {
         .max()
 }
 
-fn line_product(old: Option<u32>, step: &Fn(usize) -> u32) -> Option<u32> {
-    old.max(Some((0..4).map(step).product()))
-}
-
 pub fn special_pythagorean_triplet(sum: u32) -> Option<u32> {
     // WLOG assume a = min(a, b). (sum - 2a)^2 > c^2 > a^2 => sum > 3a
     (1..sum / 3 + 1)
@@ -23,6 +19,10 @@ pub fn special_pythagorean_triplet(sum: u32) -> Option<u32> {
                 .map(|(b, c)| a * b * c)
         })
         .nth(0)
+}
+
+fn line_product(old: Option<u32>, step: &Fn(usize) -> u32) -> Option<u32> {
+    old.max(Some((0..4).map(step).product()))
 }
 
 pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
