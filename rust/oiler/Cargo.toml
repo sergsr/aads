@@ -4,5 +4,5 @@ version = "0.1.0"
 authors = ["Sergei Radutnuy <sergeiradutnuy01@gmail.com>"]
 
 [dependencies]
-itertools = "0.7.3"
 num   = "0.1"
+rayon = "1.0.1"

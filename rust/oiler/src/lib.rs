@@ -1,5 +1,5 @@
-#[macro_use]
-extern crate itertools;
 extern crate num;
+extern crate rayon;
+
 pub mod io;
 pub mod solutions;
