@@ -1,6 +1,7 @@
 use num::integer;
 use num::Integer;
 use rayon::prelude::*;
+use std;
 
 pub fn largest_product_in_a_series(x: usize, digits: &Vec<u64>) -> Option<u64> {
     (0..digits.len() - x)
@@ -82,6 +83,22 @@ pub fn lattice_paths(size: u64) -> u64 {
     integer::binomial(2 * size, size)
 }
 
+pub fn maximum_path_sum(rows: &Vec<Vec<u32>>) -> Option<u32> {
+    let last = match rows.last() {
+        Some(row) => row,
+        None => return None,
+    };
+
+    let mut accum = last.to_owned();
+    rows.iter().rev().skip(1).for_each(|row| {
+        row.iter().enumerate().for_each(|(i, x)| {
+            accum[i] = x + std::cmp::max(accum[i], accum[i + 1]);
+        })
+    });
+
+    return accum.first().map(|x| *x);
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::io;
@@ -131,5 +148,10 @@ mod tests {
     fn test_lattice_paths() {
         assert_eq!(1, lattice_paths(0));
         assert_eq!(6, lattice_paths(2));
+    }
+
+    #[test]
+    fn test_maximum_path_sum() {
+        assert_eq!(maximum_path_sum(&Vec::new()), None)
     }
 }
