@@ -22,15 +22,7 @@ pub fn special_pythagorean_triplet(sum: u32) -> Option<u32> {
         .nth(0)
 }
 
-fn line_product(old: Option<u32>, step: &Fn(usize) -> u32) -> Option<u32> {
-    old.max(Some((0..4).map(step).product()))
-}
-
 pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
-    if grid.is_empty() {
-        return None;
-    }
-
     (0..grid.len())
         .into_par_iter()
         .filter_map(|r| {
@@ -39,16 +31,26 @@ pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
                 .filter_map(|c| {
                     let mut result: Option<u32> = None;
                     if c + 3 < grid[0].len() {
-                        result = line_product(result, &|d| grid[r][c + d]);
+                        result = result.max(Some(
+                            grid[r][c] * grid[r][c + 1] * grid[r][c + 2] * grid[r][c + 3],
+                        ));
                     }
                     if r + 3 < grid.len() {
-                        result = line_product(result, &|d| grid[r + d][c]);
+                        result = result.max(Some(
+                            grid[r][c] * grid[r + 1][c] * grid[r + 2][c] * grid[r + 3][c],
+                        ));
                     }
                     if c + 3 < grid[0].len() && r + 3 < grid.len() {
-                        result = line_product(result, &|d| grid[r + d][c + d]);
+                        result = result.max(Some(
+                            grid[r][c] * grid[r + 1][c + 1] * grid[r + 2][c + 2]
+                                * grid[r + 3][c + 3],
+                        ));
                     }
                     if 2 < c && r + 3 < grid.len() {
-                        result = line_product(result, &|d| grid[r + d][c - d]);
+                        result = result.max(Some(
+                            grid[r][c] * grid[r + 1][c - 1] * grid[r + 2][c - 2]
+                                * grid[r + 3][c - 3],
+                        ));
                     }
                     return result;
                 })
