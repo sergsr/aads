@@ -86,19 +86,15 @@ pub fn lattice_paths(size: u64) -> u64 {
 }
 
 pub fn maximum_path_sum(rows: &Vec<Vec<u32>>) -> Option<u32> {
-    let last = match rows.last() {
-        Some(row) => row,
-        None => return None,
-    };
-
-    let mut accum = last.to_owned();
-    rows.iter().rev().skip(1).for_each(|row| {
-        row.iter().enumerate().for_each(|(i, x)| {
-            accum[i] = x + std::cmp::max(accum[i], accum[i + 1]);
-        })
-    });
-
-    return accum.first().map(|x| *x);
+    rows.last().and_then(|last| {
+        let mut accum = last.to_owned();
+        rows.iter().rev().skip(1).for_each(|row| {
+            row.iter().enumerate().for_each(|(i, x)| {
+                accum[i] = x + std::cmp::max(accum[i], accum[i + 1]);
+            })
+        });
+        accum.first().map(|x| *x)
+    })
 }
 
 #[cfg(test)]
