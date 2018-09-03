@@ -45,8 +45,8 @@ sumSquareDifference :: Int -> Int
 sumSquareDifference n | n < 1     = 0
                       | otherwise = ((n*(n + 1)) `quot` 2)^2 - (n*(n + 1)*(2*n + 1) `quot` 6)
 
-largeSum :: [Integer] -> String
-largeSum = sum >>> show >>> take 10
+largeSum :: [Integer] -> Integer
+largeSum = sum >>> show >>> take 10 >>> read
 
 latticePaths :: Integer -> Integer
 latticePaths k = product [k + 1 .. 2*k] `quot` product [1..k]

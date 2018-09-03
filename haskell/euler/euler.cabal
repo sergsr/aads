@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 210523f08f0d4e62c316f8fe46a13df4ae2475adeb0b103be29e2efa5fda83da
+-- hash: b5e89fa6aa9f2644ce326c3f86548c1dbb0a490b702321031392defc9f262d64
 
 name:           euler
 version:        0.1.0.0
@@ -13,7 +13,7 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      base >=4.10 && <5
   exposed-modules:
       Lib
   other-modules:
@@ -26,8 +26,10 @@ executable simple-library-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      base >=4.10 && <5
+    , bytestring
     , euler
+    , file-embed
   other-modules:
       Paths_euler
   default-language: Haskell2010
@@ -39,8 +41,9 @@ test-suite simple-library-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      base >=4.10 && <5
     , euler
+    , file-embed
   other-modules:
       Paths_euler
   default-language: Haskell2010

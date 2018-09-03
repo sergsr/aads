@@ -2,7 +2,7 @@ name:                euler
 version:             0.1.0.0
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.10 && < 5
 
 library:
   source-dirs: src
@@ -17,6 +17,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - euler
+    - file-embed
+    - bytestring
 
 tests:
   simple-library-test:
@@ -28,3 +30,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - euler
+    - file-embed
