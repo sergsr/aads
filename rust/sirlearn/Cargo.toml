@@ -1,0 +1,7 @@
+[package]
+name = "sirlearn"
+version = "0.1.0"
+authors = ["Sergei Radutnuy <sergeiradutnuy01@gmail.com>"]
+
+[dependencies]
+arrow = "0.10.0"
