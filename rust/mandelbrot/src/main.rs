@@ -2,6 +2,7 @@ extern crate crossbeam;
 extern crate docopt;
 extern crate image;
 extern crate num;
+extern crate num_cpus;
 //extern crate serde;
 //#[macro_use]
 //extern crate serde_derive;
@@ -120,7 +121,7 @@ fn main() {
     let (width, height) = bounds;
     let mut pixels = vec![0; width * height];
 
-    let threads = 8;
+    let threads = dbg!(num_cpus::get());
     let rows_per_band = height / threads + 1;
     {
         let bands: Vec<&mut [u8]> = pixels.chunks_mut(rows_per_band * width).collect();
