@@ -1,12 +1,3 @@
-extern crate crossbeam;
-extern crate docopt;
-extern crate image;
-extern crate num;
-extern crate num_cpus;
-//extern crate serde;
-//#[macro_use]
-//extern crate serde_derive;
-
 use image::ColorType;
 use num::Complex;
 use std::io::Write;

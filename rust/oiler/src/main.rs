@@ -1,6 +1,3 @@
-extern crate oiler;
-extern crate rayon;
-
 use oiler::io::*;
 use oiler::solutions::*;
 
