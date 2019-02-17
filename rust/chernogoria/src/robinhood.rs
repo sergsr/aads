@@ -36,7 +36,10 @@ pub struct Quotes {
     results: Vec<Quote>,
 }
 
-pub fn get_quotes(client: &HttpsClient, symbols: &Vec<String>) -> impl Future<Item = Quotes, Error = ()> {
+pub fn get_quotes(
+    client: &HttpsClient,
+    symbols: &Vec<String>,
+) -> impl Future<Item = Quotes, Error = ()> {
     let query = &symbols.join(",").to_uppercase();
     let url = format!("https://api.robinhood.com/quotes/?symbols={}", query);
     client

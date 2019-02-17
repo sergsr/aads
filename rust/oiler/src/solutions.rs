@@ -42,13 +42,17 @@ pub fn largest_product_in_a_grid(grid: &Vec<Vec<u32>>) -> Option<u32> {
                     }
                     if c + 3 < grid[0].len() && r + 3 < grid.len() {
                         result = result.max(Some(
-                            grid[r][c] * grid[r + 1][c + 1] * grid[r + 2][c + 2]
+                            grid[r][c]
+                                * grid[r + 1][c + 1]
+                                * grid[r + 2][c + 2]
                                 * grid[r + 3][c + 3],
                         ));
                     }
                     if 2 < c && r + 3 < grid.len() {
                         result = result.max(Some(
-                            grid[r][c] * grid[r + 1][c - 1] * grid[r + 2][c - 2]
+                            grid[r][c]
+                                * grid[r + 1][c - 1]
+                                * grid[r + 2][c - 2]
                                 * grid[r + 3][c - 3],
                         ));
                     }
