@@ -1,7 +1,6 @@
 use image::ColorType;
 use num::Complex;
-use std::io::Write;
-use std::str::FromStr;
+use std::{io::Write, str::FromStr};
 
 /*
 const USAGE: &'static str = "\

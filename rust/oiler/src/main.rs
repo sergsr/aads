@@ -1,5 +1,4 @@
-use oiler::io::*;
-use oiler::solutions::*;
+use oiler::{io::*, solutions::*};
 
 fn print_solution<T>(number: usize, result: T)
 where

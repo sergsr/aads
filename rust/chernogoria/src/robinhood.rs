@@ -2,8 +2,7 @@
 // use chrono::{DateTime, NaiveDateTime};
 // use chrono::offset::Utc;
 use futures::{future, Future, Stream};
-use hyper::client::HttpConnector;
-use hyper::{Body, Client};
+use hyper::{client::HttpConnector, Body, Client};
 use hyper_tls::HttpsConnector;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
