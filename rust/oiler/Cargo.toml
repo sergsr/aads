@@ -1,7 +1,8 @@
 [package]
 name = "oiler"
 version = "0.1.0"
-authors = ["Sergei Radutnuy <sergeiradutnuy01@gmail.com>"]
+authors = ["Sergei Radutnuy"]
+edition = "2018"
 
 [dependencies]
 num   = "0.1"

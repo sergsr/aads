@@ -1,7 +1,7 @@
 [package]
 name = "chernogoria"
 version = "0.1.0"
-authors = ["Sergei Radutnuy <sergeiradutnuy01@gmail.com>"]
+authors = ["Sergei Radutnuy"]
 
 [dependencies]
 chrono = { version = "0.4.6", features = ["serde"] }
