@@ -1,4 +1,5 @@
 use docopt::{Docopt, Error};
+use serde_derive::Deserialize;
 
 const USAGE: &'static str = include_str!("usage.txt");
 
