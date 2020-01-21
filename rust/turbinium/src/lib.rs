@@ -33,14 +33,14 @@ impl<'a> FromIterator<IndexEntry<'a>> for InvertedIndexNaive<'a> {
         // insert field -> (token -> (doc id -> score))
         let mut nested_maps = HashMap::new();
         for (field, token, doc_id, payload) in iter {
-            let field_entry = nested_maps.entry(field).or_insert(HashMap::new());
-            let token_entry = field_entry.entry(token).or_insert(BTreeMap::new());
+            let field_entry = nested_maps.entry(field).or_insert_with(HashMap::new);
+            let token_entry = field_entry.entry(token).or_insert_with(BTreeMap::new);
             token_entry.insert(doc_id, payload);
         }
         let mut posting_lists = HashMap::new();
         // turn BTreeMaps into DesnPostingLists
         for (field, token_map) in nested_maps {
-            let field_entry = posting_lists.entry(field).or_insert(HashMap::new());
+            let field_entry = posting_lists.entry(field).or_insert_with(HashMap::new);
             for (token, score_map) in token_map {
                 let posting_list = score_map
                     .iter()
@@ -52,7 +52,7 @@ impl<'a> FromIterator<IndexEntry<'a>> for InvertedIndexNaive<'a> {
                 field_entry.insert(token, posting_list);
             }
         }
-        return InvertedIndexNaive { posting_lists };
+        InvertedIndexNaive { posting_lists }
     }
 }
 
