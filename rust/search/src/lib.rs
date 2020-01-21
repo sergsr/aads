@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
+use std::iter::FromIterator;
 
 type DocId = i32;
 const MIN_DOC_ID: DocId = std::i32::MIN;
@@ -17,11 +18,42 @@ struct Term<'a> {
     weight: f32,
 }
 
+// used to populate an index in a simple way
+type IndexEntry<'a> = (&'a str, &'a str, DocId, f32);
+
 type DensePostingList = Vec<ScoredDoc>;
 
 #[derive(Debug)]
 struct InvertedIndexNaive<'a> {
     posting_lists: HashMap<&'a str, HashMap<&'a str, DensePostingList>>,
+}
+
+impl<'a> FromIterator<IndexEntry<'a>> for InvertedIndexNaive<'a> {
+    fn from_iter<T: IntoIterator<Item = IndexEntry<'a>>>(iter: T) -> Self {
+        // insert field -> (token -> (doc id -> score))
+        let mut nested_maps = HashMap::new();
+        for (field, token, doc_id, payload) in iter {
+            let field_entry = nested_maps.entry(field).or_insert(HashMap::new());
+            let token_entry = field_entry.entry(token).or_insert(BTreeMap::new());
+            token_entry.insert(doc_id, payload);
+        }
+        let mut posting_lists = HashMap::new();
+        // turn BTreeMaps into DesnPostingLists
+        for (field, token_map) in nested_maps {
+            let field_entry = posting_lists.entry(field).or_insert(HashMap::new());
+            for (token, score_map) in token_map {
+                let posting_list = score_map
+                    .iter()
+                    .map(|x| ScoredDoc {
+                        id: *x.0,
+                        score: *x.1,
+                    })
+                    .collect();
+                field_entry.insert(token, posting_list);
+            }
+        }
+        return InvertedIndexNaive { posting_lists };
+    }
 }
 
 enum AndState {
@@ -135,83 +167,29 @@ mod tests {
 
     #[test]
     fn nonempty_and() {
-        let description_list: HashMap<&str, DensePostingList> = [
-            (
-                "very",
-                vec![
-                    ScoredDoc { id: 1, score: 1.0 },
-                    ScoredDoc { id: 5, score: 1.0 },
-                ],
-            ),
-            (
-                "human",
-                vec![
-                    ScoredDoc { id: 2, score: 1.0 },
-                    ScoredDoc { id: 5, score: 2.0 },
-                ],
-            ),
-            (
-                "like",
-                vec![
-                    ScoredDoc { id: 3, score: 1.0 },
-                    ScoredDoc { id: 5, score: 3.0 },
-                ],
-            ),
-            (
-                "eyes",
-                vec![
-                    ScoredDoc { id: 4, score: 1.0 },
-                    ScoredDoc { id: 5, score: 4.0 },
-                ],
-            ),
+        let inverted_index: InvertedIndexNaive = [
+            ("description", "very", 1, 1.0),
+            ("description", "very", 5, 1.0),
+            ("description", "human", 2, 1.0),
+            ("description", "human", 5, 2.0),
+            ("description", "like", 3, 1.0),
+            ("description", "like", 5, 3.0),
+            ("description", "eyes", 4, 1.0),
+            ("description", "eyes", 5, 4.0),
+            ("title", "manul", 1, 1.0),
+            ("title", "manul", 5, 5.0),
+            ("title", "cat", 2, 1.0),
+            ("title", "cat", 5, 6.0),
+            ("title", "facial", 3, 1.0),
+            ("title", "facial", 5, 7.0),
+            ("title", "expression", 4, 1.0),
+            ("title", "expression", 5, 8.0),
         ]
         .iter()
         .cloned()
         .collect();
 
-        let title_list: HashMap<&str, DensePostingList> = [
-            (
-                "manul",
-                vec![
-                    ScoredDoc { id: 1, score: 1.0 },
-                    ScoredDoc { id: 5, score: 5.0 },
-                ],
-            ),
-            (
-                "cat",
-                vec![
-                    ScoredDoc { id: 2, score: 1.0 },
-                    ScoredDoc { id: 5, score: 6.0 },
-                ],
-            ),
-            (
-                "facial",
-                vec![
-                    ScoredDoc { id: 3, score: 1.0 },
-                    ScoredDoc { id: 5, score: 7.0 },
-                ],
-            ),
-            (
-                "expression",
-                vec![
-                    ScoredDoc { id: 4, score: 1.0 },
-                    ScoredDoc { id: 5, score: 8.0 },
-                ],
-            ),
-        ]
-        .iter()
-        .cloned()
-        .collect();
-
-        let posting_lists = [("title", title_list), ("description", description_list)]
-            .iter()
-            .cloned()
-            .collect();
-        let inverted_index = InvertedIndexNaive {
-            posting_lists,
-        };
-
-        let terms = vec![
+        let terms = [
             Term {
                 field: "description",
                 token: "very",
