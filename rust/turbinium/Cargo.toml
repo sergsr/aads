@@ -1,5 +1,5 @@
 [package]
-name = "search"
+name = "turbinium"
 version = "0.1.0"
 authors = ["Sergei Radutnuy"]
 edition = "2018"
