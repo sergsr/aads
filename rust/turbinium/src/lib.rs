@@ -23,9 +23,26 @@ type IndexEntry<'a> = (&'a str, &'a str, DocId, f32);
 
 type DensePostingList = Vec<ScoredDoc>;
 
+type WeightedPostingListIterator<'a> = (f32, std::slice::Iter<'a, ScoredDoc>);
+
 #[derive(Debug)]
 struct InvertedIndexNaive<'a> {
+    // TODO: dictionaries and IDF's, etc as well
     posting_lists: HashMap<&'a str, HashMap<&'a str, DensePostingList>>,
+}
+
+impl<'a> InvertedIndexNaive<'a> {
+    // TODO: figure out the lifetime stuff to make this return an iterator and can early terminate on
+    fn get_lists_for_terms(&self, terms: &[Term<'a>]) -> Vec<Option<(f32, &DensePostingList)>> {
+        terms
+            .iter()
+            .map(|term| {
+                self.posting_lists.get(term.field).and_then(|field_result| {
+                    field_result.get(term.token).map(|list| (term.weight, list))
+                })
+            })
+            .collect()
+    }
 }
 
 impl<'a> FromIterator<IndexEntry<'a>> for InvertedIndexNaive<'a> {
@@ -56,49 +73,55 @@ impl<'a> FromIterator<IndexEntry<'a>> for InvertedIndexNaive<'a> {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum AndState {
     Searching,
-    HitEmptyList(usize),
+    IterationsAfterEmptyList(usize),
     Done,
 }
 
+impl AndState {
+    fn next_state(&self, frontier_length: usize) -> Self {
+        match self {
+            AndState::Searching => AndState::IterationsAfterEmptyList(0),
+            AndState::IterationsAfterEmptyList(i) => {
+                if *i == frontier_length - 1 {
+                    AndState::Done
+                } else {
+                    AndState::IterationsAfterEmptyList(i + 1)
+                }
+            }
+            AndState::Done => AndState::Done,
+        }
+    }
+}
+
+impl Default for AndState {
+    fn default() -> Self {
+        AndState::Done
+    }
+}
+
+#[derive(Default)]
 struct And<'a> {
     state: AndState,
-    frontier: Vec<std::slice::Iter<'a, ScoredDoc>>,
-    weights: Vec<f32>,
+    frontier: Vec<WeightedPostingListIterator<'a>>,
     last_viable_id: i32,
 }
 
+// TODO: ctor that takes in existing iterators
 impl<'a> And<'a> {
-    fn new(index: &'a InvertedIndexNaive, terms: &[Term]) -> Self {
+    fn new(index: &'a InvertedIndexNaive, terms: &[Term<'a>]) -> Self {
         let mut frontier = Vec::with_capacity(terms.len());
-        let mut weights = Vec::with_capacity(terms.len());
-        // check to see if we can even find posing lists for all the terms
-        for term in terms.iter() {
-            let lookup = index
-                .posting_lists
-                .get(term.field)
-                .and_then(|field_result| field_result.get(term.token));
-
+        for lookup in index.get_lists_for_terms(terms) {
             match lookup {
-                None => {
-                    return And {
-                        state: AndState::Done,
-                        frontier: Vec::new(),
-                        weights: Vec::new(),
-                        last_viable_id: MAX_DOC_ID,
-                    }
-                }
-                Some(list) => {
-                    frontier.push(list.iter());
-                    weights.push(term.weight);
-                }
+                None => return And::default(),
+                Some((weight, list)) => frontier.push((weight, list.iter())),
             }
         }
         And {
             state: AndState::Searching,
             frontier,
-            weights,
             last_viable_id: MIN_DOC_ID,
         }
     }
@@ -108,41 +131,41 @@ impl Iterator for And<'_> {
     type Item = ScoredDoc;
 
     fn next(&mut self) -> Option<ScoredDoc> {
+        let frontier_length = self.frontier.len();
         let mut matched_doc_count = 0;
         let mut score = 0.0;
 
-        for posting_list_number in (0..self.frontier.len()).cycle() {
-            let mut last_viable_id = self.last_viable_id;
-            let list_iter = self.frontier.get_mut(posting_list_number).unwrap();
-            let mut list_iter = list_iter.skip_while(|doc| doc.id < last_viable_id);
-            match list_iter.next() {
-                None => match self.state {
-                    AndState::Searching => self.state = AndState::HitEmptyList(posting_list_number),
-                    AndState::HitEmptyList(i) => {
-                        if posting_list_number == i {
-                            self.state = AndState::Done;
+        while self.state != AndState::Done {
+            for (weight, posting_list) in self.frontier.iter_mut() {
+                let mut current_state = self.state;
+                let mut last_viable_id = self.last_viable_id;
+                let mut list_iter = posting_list.skip_while(|doc| doc.id < last_viable_id);
+                match list_iter.next() {
+                    None => current_state = current_state.next_state(frontier_length),
+                    Some(doc) => {
+                        let score_contribution = *weight * doc.score;
+                        if doc.id == last_viable_id {
+                            score += score_contribution;
+                            matched_doc_count += 1;
+                        } else {
+                            score = score_contribution;
+                            matched_doc_count = 0;
+                            last_viable_id = doc.id;
                         }
                     }
-                    AndState::Done => break,
-                },
-                Some(doc) => {
-                    if doc.id == last_viable_id {
-                        score += self.weights[posting_list_number] * doc.score;
-                        matched_doc_count += 1;
-                    } else {
-                        matched_doc_count = 0;
-                        score = self.weights[posting_list_number] * doc.score;
-                        last_viable_id = doc.id;
-                    }
+                }
+                if matched_doc_count == frontier_length - 1 {
+                    return Some(ScoredDoc {
+                        id: last_viable_id,
+                        score,
+                    });
+                }
+                self.last_viable_id = last_viable_id;
+                self.state = current_state;
+                if self.state == AndState::Done {
+                    break;
                 }
             }
-            if matched_doc_count == self.frontier.len() - 1 {
-                return Some(ScoredDoc {
-                    id: last_viable_id,
-                    score,
-                });
-            }
-            self.last_viable_id = last_viable_id;
         }
         None
     }
@@ -170,20 +193,27 @@ mod tests {
         let inverted_index: InvertedIndexNaive = [
             ("description", "very", 1, 1.0),
             ("description", "very", 5, 1.0),
+            ("description", "very", 6, 1.0),
             ("description", "human", 2, 1.0),
             ("description", "human", 5, 2.0),
+            ("description", "human", 6, 1.0),
             ("description", "like", 3, 1.0),
             ("description", "like", 5, 3.0),
             ("description", "eyes", 4, 1.0),
             ("description", "eyes", 5, 4.0),
+            ("description", "eyes", 6, 1.0),
             ("title", "manul", 1, 1.0),
             ("title", "manul", 5, 5.0),
+            ("title", "manul", 6, 1.0),
             ("title", "cat", 2, 1.0),
             ("title", "cat", 5, 6.0),
+            ("title", "cat", 6, 1.0),
             ("title", "facial", 3, 1.0),
             ("title", "facial", 5, 7.0),
+            ("title", "facial", 6, 1.0),
             ("title", "expression", 4, 1.0),
             ("title", "expression", 5, 8.0),
+            ("title", "expression", 6, 1.0),
         ]
         .iter()
         .cloned()
